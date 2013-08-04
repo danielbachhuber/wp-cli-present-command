@@ -1,14 +1,22 @@
 <?php
 class WP_CLI_Present_Command extends WP_CLI_Command {
 
+	private $height;
+
 	/**
 	 * Present your story using WP-CLI.
 	 * 
-	 * @synopsis <file>
+	 * @synopsis <file> [--screen-height=<height>]
 	 */
-	public function __invoke( $args ) {
+	public function __invoke( $args, $assoc_args ) {
 
 		list( $file ) = $args;
+
+		$defaults = array(
+				'screen-height' => 20,
+			);
+		$assoc_args = array_merge( $defaults, $assoc_args );
+		$this->height = $assoc_args['screen-height'];
 
 		if ( ! file_exists( $file ) )
 			WP_CLI::error( "File to present doesn't exist." );
@@ -23,7 +31,7 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 			if ( $i < 0 )
 				exit;
 
-			WP_CLI::line( $slides[$i] );
+			$this->display_slide( $slides[$i] );
 
 			$ret = $this->prompt( "Action (j/k)" );
 			if ( 'j' == $ret ) {
@@ -41,6 +49,31 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 		// Slides are denoted by h1 or h2
 		preg_match_all( '/[#]{1,2}.*\r?\n([^#]|\r?\n)*/', $presentation, $slides );
 		return $slides[0];
+	}
+
+	/**
+	 * Display a given slide
+	 */
+	private function display_slide( $slide ) {
+		$slide_lines = explode( PHP_EOL, $slide );
+
+		WP_CLI::line();
+		WP_CLI::line();
+
+		$header = array_shift( $slide_lines );
+		WP_CLI::line( $header );
+		WP_CLI::line();
+
+		$count = 0;
+		foreach( $slide_lines as $slide_line ) {
+			WP_CLI::line( $slide_line );
+			$count++;
+		}
+
+		while( $count < $this->height ) {
+			WP_CLI::line();
+			$count++;
+		}
 	}
 
 	/**
