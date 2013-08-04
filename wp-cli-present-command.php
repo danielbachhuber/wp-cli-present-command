@@ -35,8 +35,12 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 
 			$slide_count = $i + 1;
 			WP_CLI::out( sprintf( "%d/%d ", $slide_count, count( $slides ) ) );
-			$ret = $this->prompt( "(j/k/q)" );
+
+			$ret = $this->prompt( "(#/j/k/q)" );
 			switch ( $ret ) {
+				case is_numeric( $ret ):
+					$i = $ret - 1;
+					break;
 				case 'j':
 					$i++;
 					break;
