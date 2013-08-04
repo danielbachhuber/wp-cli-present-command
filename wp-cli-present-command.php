@@ -33,11 +33,18 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 
 			$this->display_slide( $slides[$i] );
 
-			$ret = $this->prompt( "Action (j/k)" );
-			if ( 'j' == $ret ) {
-				$i++;
-			} else if ( 'k' == $ret ) {
-				$i--;
+			$slide_count = $i + 1;
+			WP_CLI::out( sprintf( "%d/%d ", $slide_count, count( $slides ) ) );
+			$ret = $this->prompt( "(j/k/q)" );
+			switch ( $ret ) {
+				case 'j':
+					$i++;
+					break;
+				case 'k':
+					$i--;
+					break;
+				case 'q';
+					exit;
 			}
 		}
 	}
@@ -81,8 +88,7 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 	 */
 	private function prompt( $text ) {
 		WP_CLI::out( $text . ':' );
-
-		return trim( fgets( STDIN ) );
+		return strtolower( trim( fgets( STDIN ) ) );
 	}
 
 }
