@@ -88,8 +88,13 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 
 			if ( 0 === strpos( $slide_line, '%' ) )
 				WP_CLI::line( WP_CLI::colorize( $slide_line . ' ' ) );
-			else
+			else {
+				if ( false !== strpos( $slide_line, '`' ) ) {
+					$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
+					$slide_line = WP_CLI::colorize( $slide_line );
+				}
 				WP_CLI::line( $slide_line );
+			}
 
 			$count++;
 		}
