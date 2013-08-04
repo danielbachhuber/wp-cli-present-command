@@ -15,9 +15,7 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 
 		$presentation = file_get_contents( $file );
 
-		// Slides are denoted by h1 or h2
-		preg_match_all( '/[#]{1,2}.*\r?\n([^#]|\r?\n)*/', $presentation, $slides );
-		$slides = $slides[0];
+		$slides = $this->get_slides( $presentation );
 
 		$i = 0;
 		while( $i < count( $slides ) ) {
@@ -37,11 +35,20 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Get the slides from a given presentation
+	 */
+	private function get_slides( $presentation ) {
+		// Slides are denoted by h1 or h2
+		preg_match_all( '/[#]{1,2}.*\r?\n([^#]|\r?\n)*/', $presentation, $slides );
+		return $slides[0];
+	}
+
+	/**
 	 * Prompt the user for some input.
 	 */
 	private function prompt( $text ) {
 		WP_CLI::out( $text . ':' );
-		
+
 		return trim( fgets( STDIN ) );
 	}
 
