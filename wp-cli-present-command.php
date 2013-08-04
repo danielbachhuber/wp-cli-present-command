@@ -72,7 +72,8 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 		WP_CLI::line();
 
 		$header = array_shift( $slide_lines );
-		WP_CLI::line( $header );
+		WP_CLI::line( WP_CLI::colorize( '%1' . $header . '%n' ) );
+
 		WP_CLI::line();
 
 		$count = 0;
