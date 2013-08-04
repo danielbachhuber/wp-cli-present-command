@@ -77,8 +77,16 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 		WP_CLI::line();
 
 		$count = 0;
+		$current_colorize = '%n';
 		foreach( $slide_lines as $slide_line ) {
-			WP_CLI::line( $slide_line );
+			if ( '```' == $slide_line )
+				$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
+
+			if ( 0 === strpos( $slide_line, '%' ) )
+				WP_CLI::line( WP_CLI::colorize( $slide_line . ' ' ) );
+			else
+				WP_CLI::line( $slide_line );
+
 			$count++;
 		}
 
