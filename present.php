@@ -145,13 +145,14 @@ class Present_Command extends WP_CLI_Command {
 					$slide_line .= '%n';
 				}
 
-				if ( 0 === strpos( $slide_line, '%' ) )
+				// Code blocks
+				if ( false !== strpos( $slide_line, '`' ) ) {
+					$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
+				}
+
+				if ( false !== strpos( $slide_line, '%' ) ) {
 					$built_slide_lines[] = WP_CLI::colorize( $slide_line );
-				else {
-					if ( false !== strpos( $slide_line, '`' ) ) {
-						$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
-						$slide_line = WP_CLI::colorize( $slide_line );
-					}
+				} else {
 					$built_slide_lines[] = $slide_line;
 				}
 			}
