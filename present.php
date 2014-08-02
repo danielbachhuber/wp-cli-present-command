@@ -130,6 +130,15 @@ class Present_Command extends WP_CLI_Command {
 				if ( '```' == $slide_line )
 					$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
 
+				// Start / end quote blocks
+				if ( 0 === stripos( $slide_line, '    ' ) && '%n' == $current_colorize ) {
+					$slide_line = '%7' . $slide_line;
+					$current_colorize = '%7';
+				} else if ( false === stripos( $slide_line, '    ' ) && '%7' == $current_colorize ) {
+					$slide_line = '%n' . $slide_line;
+					$current_colorize = '%n';
+				}
+
 				if ( 0 === strpos( $slide_line, '%' ) )
 					$built_slide_lines[] = WP_CLI::colorize( $slide_line . ' ' );
 				else {
@@ -141,6 +150,31 @@ class Present_Command extends WP_CLI_Command {
 				}
 			}
 
+		}
+
+		// Split lines that are too wide
+		$total_line_count = count( $built_slide_lines );
+		for( $i = 0; $i < $total_line_count; $i++ ) {
+			foreach( $built_slide_lines as $key => $built_slide_line ) {
+
+				if ( cli\safe_strlen( $built_slide_line ) < $this->width ){
+					continue;
+				}
+				$lines = array();
+				do {
+					$split_line = mb_substr( $built_slide_line, 0, $this->width, mb_detect_encoding( $built_slide_line ) );
+					if ( mb_strlen( $split_line, mb_detect_encoding( $split_line ) ) ) {
+						$lines[] = $split_line;
+						$built_slide_line = mb_substr( $built_slide_line, $this->width, null, mb_detect_encoding( $built_slide_line ) );
+					}
+				} while( $split_line );
+
+				$top = array_slice( $built_slide_lines, 0, $key );
+				$bottom = array_slice( $built_slide_lines, 0, $key + 1);
+				$built_slide_lines = $top + $lines + $bottom;
+				$total_line_count = count( $built_slide_lines );
+				break;
+			}
 		}
 
 		if ( count( $built_slide_lines ) < ( $this->height - 1 ) ) {
