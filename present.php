@@ -65,8 +65,7 @@ class Present_Command extends WP_CLI_Command {
 	 */
 	private function get_slides( $presentation ) {
 		// Slides are denoted by 3 or more "*" characters
-		preg_match_all( '/([^*]{3,})\r?\n/', $presentation, $slides );
-		return $slides[0];
+		return preg_split( '/[*]{3,}/s', $presentation );
 	}
 
 	/**
