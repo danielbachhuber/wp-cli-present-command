@@ -130,6 +130,15 @@ class Present_Command extends WP_CLI_Command {
 				if ( '```' == $slide_line )
 					$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
 
+				// Start / end quote blocks
+				if ( 0 === stripos( $slide_line, '    ' ) && '%n' == $current_colorize ) {
+					$slide_line = '%7' . $slide_line;
+					$current_colorize = '%7';
+				} else if ( false === stripos( $slide_line, '    ' ) && '%7' == $current_colorize ) {
+					$slide_line = '%n' . $slide_line;
+					$current_colorize = '%n';
+				}
+
 				if ( 0 === strpos( $slide_line, '%' ) )
 					$built_slide_lines[] = WP_CLI::colorize( $slide_line . ' ' );
 				else {
