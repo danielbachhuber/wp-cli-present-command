@@ -19,6 +19,7 @@ class Present_Command extends WP_CLI_Command {
 		list( $file ) = $args;
 
 		$this->height = shell_exec( 'tput lines' );
+		$this->width = shell_exec( 'tput cols' );
 
 		if ( ! file_exists( $file ) )
 			WP_CLI::error( "File to present doesn't exist." );
@@ -72,39 +73,80 @@ class Present_Command extends WP_CLI_Command {
 	 * Display a given slide
 	 */
 	private function display_slide( $slide ) {
-		$slide_lines = explode( PHP_EOL, $slide );
+		$built_slide_lines = array();
 
-		WP_CLI::line();
-		WP_CLI::line();
+		// Title or subtitle slides are centered horizontally and verically
+		if ( preg_match( "#(.+)\r?\n([=-]){1,}\r?\n(.+)?#s", $slide, $matches ) ) {
 
-		$header = array_shift( $slide_lines );
-		WP_CLI::line( WP_CLI::colorize( '%1' . $header . '%n' ) );
-
-		WP_CLI::line();
-
-		$count = 0;
-		$current_colorize = '%n';
-		foreach( $slide_lines as $slide_line ) {
-			if ( '```' == $slide_line )
-				$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
-
-			if ( 0 === strpos( $slide_line, '%' ) )
-				WP_CLI::line( WP_CLI::colorize( $slide_line . ' ' ) );
-			else {
-				if ( false !== strpos( $slide_line, '`' ) ) {
-					$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
-					$slide_line = WP_CLI::colorize( $slide_line );
-				}
-				WP_CLI::line( $slide_line );
+			// Title slide is red background
+			if ( '=' === $matches[2] ) {
+				$background_color = '%1';
+			// subtitle slides are blue background
+			} else if ( '-' === $matches[2] ) {
+				$background_color = '%4';
 			}
 
-			$count++;
+			$built_slide_lines[] = $background_color;
+
+			$center_pieces = array();
+			// Header
+			$center_pieces[] = '%N' . $background_color . $matches[1];
+
+			if ( ! empty( $matches[3] ) ) {
+				$extra_pieces = explode( PHP_EOL, $matches[3] );
+				foreach( $extra_pieces as $extra_piece ) {
+					$center_pieces[] = $extra_piece;
+				}
+			}
+
+			if ( count( $center_pieces ) < $this->height ) {
+				$total_diff = $this->height - count( $center_pieces );
+				$built_slide_lines = array_pad( $built_slide_lines, floor( $total_diff / 2 ), '' );
+			}
+			foreach( $center_pieces as $center_piece ) {
+				$built_slide_lines[] = $background_color . $center_piece . '';
+			}
+
+			// Pad the rest of the slide
+			if ( count( $built_slide_lines ) < ( $this->height - 1 ) ) {
+				$built_slide_lines = array_pad( $built_slide_lines, $this->height - 1, $background_color );
+			}
+
+			$built_slide_lines[] = '%0';
+
+			$built_slide_str = implode( PHP_EOL, $built_slide_lines );
+			$built_slide_str = WP_CLI::colorize( $built_slide_str );
+			$built_slide_lines = explode( PHP_EOL, $built_slide_str );
+
+		} else {
+			$slide_lines = explode( PHP_EOL, $slide );
+			$background_color = '';
+
+			$current_colorize = '%n';
+			foreach( $slide_lines as $slide_line ) {
+				// Start / end code blocks
+				if ( '```' == $slide_line )
+					$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
+
+				if ( 0 === strpos( $slide_line, '%' ) )
+					$built_slide_lines[] = WP_CLI::colorize( $slide_line . ' ' );
+				else {
+					if ( false !== strpos( $slide_line, '`' ) ) {
+						$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
+						$slide_line = WP_CLI::colorize( $slide_line );
+					}
+					$built_slide_lines[] = $slide_line;
+				}
+			}
+
 		}
 
-		// @todo figure out why height isn't correct
-		while( $count < ( $this->height - 5 ) ) {
-			WP_CLI::line();
-			$count++;
+		if ( count( $built_slide_lines ) < ( $this->height - 1 ) ) {
+			$built_slide_lines = array_pad( $built_slide_lines, $this->height - 1, $background_color );
+		}
+
+		foreach( $built_slide_lines as $built_slide_line ) {
+			WP_CLI::line( $built_slide_line );
 		}
 	}
 
