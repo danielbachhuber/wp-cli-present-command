@@ -90,7 +90,7 @@ class Present_Command extends WP_CLI_Command {
 
 			$center_pieces = array();
 			// Header
-			$center_pieces[] = '%N' . $background_color . $matches[1];
+			$center_pieces[] = '%N' . $background_color . strtoupper( $matches[1] );
 
 			if ( ! empty( $matches[3] ) ) {
 				$extra_pieces = explode( PHP_EOL, $matches[3] );
