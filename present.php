@@ -139,8 +139,14 @@ class Present_Command extends WP_CLI_Command {
 					$current_colorize = '%n';
 				}
 
+				// Headers
+				if ( false !== ( stripos( $slide_line, '###' ) ) ) {
+					$slide_line = str_replace( '###', '%9', $slide_line );
+					$slide_line .= '%n';
+				}
+
 				if ( 0 === strpos( $slide_line, '%' ) )
-					$built_slide_lines[] = WP_CLI::colorize( $slide_line . ' ' );
+					$built_slide_lines[] = WP_CLI::colorize( $slide_line );
 				else {
 					if ( false !== strpos( $slide_line, '`' ) ) {
 						$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
