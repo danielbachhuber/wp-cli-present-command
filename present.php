@@ -1,22 +1,24 @@
 <?php
-class WP_CLI_Present_Command extends WP_CLI_Command {
+/**
+ * Present your story using WP-CLI
+ */
+class Present_Command extends WP_CLI_Command {
 
 	private $height;
 
 	/**
-	 * Present your story using WP-CLI.
-	 * 
-	 * @synopsis <file> [--screen-height=<height>]
+	 * Present your story using WP-CLI
+	 *
+	 * <file>
+	 * : Markdown file with your presentation contents.
+	 *
+	 * @when before_wp_load
 	 */
 	public function __invoke( $args, $assoc_args ) {
 
 		list( $file ) = $args;
 
-		$defaults = array(
-				'screen-height' => 20,
-			);
-		$assoc_args = array_merge( $defaults, $assoc_args );
-		$this->height = $assoc_args['screen-height'];
+		$this->height = shell_exec( 'tput lines' );
 
 		if ( ! file_exists( $file ) )
 			WP_CLI::error( "File to present doesn't exist." );
@@ -61,8 +63,8 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 	 * Get the slides from a given presentation
 	 */
 	private function get_slides( $presentation ) {
-		// Slides are denoted by h1 or h2
-		preg_match_all( '/[#]{1,2}.*\r?\n([^#]|\r?\n)*/', $presentation, $slides );
+		// Slides are denoted by 3 or more "*" characters
+		preg_match_all( '/([^*]{3,})\r?\n/', $presentation, $slides );
 		return $slides[0];
 	}
 
@@ -99,7 +101,8 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 			$count++;
 		}
 
-		while( $count < $this->height ) {
+		// @todo figure out why height isn't correct
+		while( $count < ( $this->height - 5 ) ) {
 			WP_CLI::line();
 			$count++;
 		}
@@ -114,4 +117,4 @@ class WP_CLI_Present_Command extends WP_CLI_Command {
 	}
 
 }
-WP_CLI::add_command( 'present', 'WP_CLI_Present_Command' );
+WP_CLI::add_command( 'present', 'Present_Command' );
