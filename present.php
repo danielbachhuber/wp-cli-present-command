@@ -18,8 +18,8 @@ class Present_Command extends WP_CLI_Command {
 
 		list( $file ) = $args;
 
-		$this->height = shell_exec( 'tput lines' );
-		$this->width = shell_exec( 'tput cols' );
+		$this->height = (int)shell_exec( 'tput lines' );
+		$this->width = (int)shell_exec( 'tput cols' );
 
 		if ( ! file_exists( $file ) )
 			WP_CLI::error( "File to present doesn't exist." );
@@ -89,7 +89,7 @@ class Present_Command extends WP_CLI_Command {
 
 			$center_pieces = array();
 			// Header
-			$center_pieces[] = $background_color . strtoupper( $matches[1] );
+			$center_pieces[] = $background_color . strtoupper( trim( $matches[1] ) );
 
 			if ( ! empty( $matches[3] ) ) {
 				$extra_pieces = explode( PHP_EOL, $matches[3] );
@@ -102,10 +102,11 @@ class Present_Command extends WP_CLI_Command {
 				$total_diff = $this->height - count( $center_pieces );
 				$built_slide_lines = array_pad( $built_slide_lines, floor( $total_diff / 2 ), '' );
 			}
+
+			// Horizontally center the center pieces
 			foreach( $center_pieces as $center_piece ) {
 				$center_width = cli\safe_strlen( $center_piece );
-				$pad = str_repeat( ' ', floor( ( $this->width - $center_width ) / 2 ) );
-				$built_slide_lines[] = $background_color . $pad . $center_piece;
+				$built_slide_lines[] = $background_color . str_pad( $center_piece, $this->width, ' ', STR_PAD_BOTH );
 			}
 
 			// Pad the rest of the slide
