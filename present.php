@@ -104,7 +104,9 @@ class Present_Command extends WP_CLI_Command {
 				$built_slide_lines = array_pad( $built_slide_lines, floor( $total_diff / 2 ), '' );
 			}
 			foreach( $center_pieces as $center_piece ) {
-				$built_slide_lines[] = $background_color . $center_piece . '';
+				$center_width = cli\safe_strlen( $center_piece );
+				$pad = str_repeat( ' ', floor( ( $this->width - $center_width ) / 2 ) );
+				$built_slide_lines[] = $background_color . $pad . $center_piece;
 			}
 
 			// Pad the rest of the slide
