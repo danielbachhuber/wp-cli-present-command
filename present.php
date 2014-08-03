@@ -133,7 +133,7 @@ class Present_Command extends WP_CLI_Command {
 
 				// Start / end code blocks
 				if ( 0 === stripos( $slide_line, '    ' ) ) {
-					$slide_line = '%g' . str_replace( '    ', '', $slide_line  ). '%n';
+					$slide_line = '%g' . preg_replace( '/^[\s]{4}/', '', $slide_line  ). '%n';
 				}
 
 				// Headers
