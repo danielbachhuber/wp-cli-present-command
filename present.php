@@ -79,6 +79,9 @@ class Present_Command extends WP_CLI_Command {
 		// Remove accidental extra lines
 		$slide = rtrim( $slide, PHP_EOL );
 
+		// Remove Markdown formatting hacks
+		$slide = preg_replace( "#(\<!--\sMarkdown\sformatting\shack\s--\>\r?\n\r?\n)#", '', $slide );
+
 		// Strip links
 		$slide = preg_replace( "#\[([^\]]+)\]\(([^\)]+)\)#", '$1', $slide );
 
