@@ -79,6 +79,9 @@ class Present_Command extends WP_CLI_Command {
 		// Remove accidental extra lines
 		$slide = rtrim( $slide, PHP_EOL );
 
+		// Strip links
+		$slide = preg_replace( "#\[([^\]]+)\]\(([^\)]+)\)#", '$1', $slide );
+
 		// Title or subtitle slides are centered horizontally and verically
 		if ( preg_match( "#(.+)?\r?\n([=\-]{1,})\r?\n?(.+)?#s", $slide, $matches ) ) {
 
