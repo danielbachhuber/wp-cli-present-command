@@ -88,9 +88,9 @@ class Present_Command extends WP_CLI_Command {
 		// Title or subtitle slides are centered horizontally and verically
 		if ( preg_match( "#(.+)?\r?\n([=\-]{1,})\r?\n?(.+)?#s", $slide, $matches ) ) {
 
-			// Title slide is red background
+			// Title slide is normal
 			if ( '=' === $matches[2][0] ) {
-				$background_color = '%1';
+				$background_color = '%n';
 			// subtitle slides are blue background
 			} else if ( '-' === $matches[2][0] ) {
 				$background_color = '%4';
@@ -100,11 +100,20 @@ class Present_Command extends WP_CLI_Command {
 
 			$center_pieces = array();
 			// Header
-			$center_pieces[] = $background_color . strtoupper( trim( $matches[1] ) );
+			$header = strtoupper( trim( $matches[1] ) );
+			if ( '=' === $matches[2][0] ) {
+				$center_pieces[] = $background_color . '%1' . $header . '%0';
+			} else {
+				$center_pieces[] = $background_color . $header;
+			}
 
 			if ( ! empty( $matches[3] ) ) {
 				$extra_pieces = explode( PHP_EOL, $matches[3] );
 				foreach( $extra_pieces as $extra_piece ) {
+						// Code blocks
+					if ( false !== strpos( $extra_piece, '`' ) ) {
+						$extra_piece = preg_replace( '/[\`]([^\`]+)[\`]/', '%g$1%n', $extra_piece );
+					}
 					$center_pieces[] = $extra_piece;
 				}
 			}
