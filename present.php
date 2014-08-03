@@ -126,17 +126,10 @@ class Present_Command extends WP_CLI_Command {
 
 			$current_colorize = '%n';
 			foreach( $slide_lines as $slide_line ) {
-				// Start / end code blocks
-				if ( '```' == $slide_line )
-					$slide_line = $current_colorize = ( '%n' == $current_colorize ) ? '%g' : '%n';
 
-				// Start / end quote blocks
-				if ( 0 === stripos( $slide_line, '    ' ) && '%n' == $current_colorize ) {
-					$slide_line = '%7' . $slide_line;
-					$current_colorize = '%7';
-				} else if ( false === stripos( $slide_line, '    ' ) && '%7' == $current_colorize ) {
-					$slide_line = '%n' . $slide_line;
-					$current_colorize = '%n';
+				// Start / end code blocks
+				if ( 0 === stripos( $slide_line, '    ' ) ) {
+					$slide_line = '%g' . str_replace( '    ', '', $slide_line  ). '%n';
 				}
 
 				// Headers
