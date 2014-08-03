@@ -74,6 +74,7 @@ class Present_Command extends WP_CLI_Command {
 	 */
 	private function display_slide( $slide ) {
 		$built_slide_lines = array();
+		$dont_pad = 0;
 
 		// Remove accidental extra lines
 		$slide = rtrim( $slide, PHP_EOL );
@@ -147,17 +148,22 @@ class Present_Command extends WP_CLI_Command {
 					$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
 				}
 
-				if ( false !== strpos( $slide_line, '%' ) ) {
-					$built_slide_lines[] = WP_CLI::colorize( $slide_line );
-				} else {
-					$built_slide_lines[] = $slide_line;
+				$length = cli\safe_strlen( str_replace( array( '%g', '%n', '%9' ), '', $slide_line ) );
+				if ( $length > $this->width ) {
+					$dont_pad += ceil( $length / $this->width );
 				}
+
+				if ( false !== strpos( $slide_line, '%' ) ) {
+					$slide_line = WP_CLI::colorize( $slide_line );
+				}
+
+				$built_slide_lines[] = $slide_line;
 			}
 
 		}
 
-		if ( count( $built_slide_lines ) < ( $this->slide_height ) ) {
-			$built_slide_lines = array_pad( $built_slide_lines, $this->slide_height, $background_color );
+		if ( ( count( $built_slide_lines ) + $dont_pad ) < ( $this->slide_height ) ) {
+			$built_slide_lines = array_pad( $built_slide_lines, $this->slide_height - $dont_pad, $background_color );
 		}
 
 		foreach( $built_slide_lines as $built_slide_line ) {
