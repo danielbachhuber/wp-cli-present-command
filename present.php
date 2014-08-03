@@ -20,6 +20,7 @@ class Present_Command extends WP_CLI_Command {
 
 		$this->height = (int)shell_exec( 'tput lines' );
 		$this->width = (int)shell_exec( 'tput cols' );
+		$this->slide_height = $this->height - 1; // accommodates navigation tools
 
 		if ( ! file_exists( $file ) )
 			WP_CLI::error( "File to present doesn't exist." );
@@ -73,6 +74,9 @@ class Present_Command extends WP_CLI_Command {
 	 */
 	private function display_slide( $slide ) {
 		$built_slide_lines = array();
+
+		// Remove accidental extra lines
+		$slide = rtrim( $slide, PHP_EOL );
 
 		// Title or subtitle slides are centered horizontally and verically
 		if ( preg_match( "#(.+)\r?\n([=-]){1,}\r?\n(.+)?#s", $slide, $matches ) ) {
@@ -152,8 +156,8 @@ class Present_Command extends WP_CLI_Command {
 
 		}
 
-		if ( count( $built_slide_lines ) < ( $this->height - 1 ) ) {
-			$built_slide_lines = array_pad( $built_slide_lines, $this->height - 1, $background_color );
+		if ( count( $built_slide_lines ) < ( $this->slide_height ) ) {
+			$built_slide_lines = array_pad( $built_slide_lines, $this->slide_height, $background_color );
 		}
 
 		foreach( $built_slide_lines as $built_slide_line ) {
