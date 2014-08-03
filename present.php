@@ -137,6 +137,11 @@ class Present_Command extends WP_CLI_Command {
 					$slide_line = '%g' . preg_replace( '/^[\s]{4}/', '', $slide_line  ). '%n';
 				}
 
+				// Start / end code quotes
+				if ( 0 === stripos( $slide_line, '> ' ) ) {
+					$slide_line = '"' . preg_replace( '/^\>\s/', '', $slide_line  ). '"';
+				}
+
 				// Headers
 				if ( false !== ( stripos( $slide_line, '###' ) ) ) {
 					$slide_line = str_replace( '###', '%9', $slide_line );
