@@ -156,7 +156,7 @@ class Present_Command extends WP_CLI_Command {
 
 				// Code blocks
 				if ( false !== strpos( $slide_line, '`' ) ) {
-					$slide_line = preg_replace( '/[\`](.+)[\`]/', '%g$1%n', $slide_line );
+					$slide_line = preg_replace( '/[\`]([^\`]+)[\`]/', '%g$1%n', $slide_line );
 				}
 
 				$length = cli\safe_strlen( str_replace( array( '%g', '%n', '%9' ), '', $slide_line ) );
