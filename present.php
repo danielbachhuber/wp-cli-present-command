@@ -79,13 +79,13 @@ class Present_Command extends WP_CLI_Command {
 		$slide = rtrim( $slide, PHP_EOL );
 
 		// Title or subtitle slides are centered horizontally and verically
-		if ( preg_match( "#(.+)\r?\n([=-]){1,}\r?\n(.+)?#s", $slide, $matches ) ) {
+		if ( preg_match( "#(.+)?\r?\n([=\-]{1,})\r?\n?(.+)?#s", $slide, $matches ) ) {
 
 			// Title slide is red background
-			if ( '=' === $matches[2] ) {
+			if ( '=' === $matches[2][0] ) {
 				$background_color = '%1';
 			// subtitle slides are blue background
-			} else if ( '-' === $matches[2] ) {
+			} else if ( '-' === $matches[2][0] ) {
 				$background_color = '%4';
 			}
 
