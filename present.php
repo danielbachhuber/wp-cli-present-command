@@ -150,7 +150,7 @@ class Present_Command extends WP_CLI_Command {
 
 				$length = cli\safe_strlen( str_replace( array( '%g', '%n', '%9' ), '', $slide_line ) );
 				if ( $length > $this->width ) {
-					$dont_pad += ceil( $length / $this->width );
+					$dont_pad += ceil( $length / $this->width ) - 1;
 				}
 
 				if ( false !== strpos( $slide_line, '%' ) ) {
